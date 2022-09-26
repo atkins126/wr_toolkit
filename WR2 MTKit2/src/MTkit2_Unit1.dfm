@@ -4,10 +4,10 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'MTKit2'
   ClientHeight = 622
-  ClientWidth = 884
+  ClientWidth = 889
   Color = clBtnFace
   Constraints.MinHeight = 680
-  Constraints.MinWidth = 900
+  Constraints.MinWidth = 905
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -24,7 +24,7 @@ object Form1: TForm1
   OnMouseWheel = FormMouseWheel
   OnResize = RenderResize
   DesignSize = (
-    884
+    889
     622)
   PixelsPerInch = 96
   TextHeight = 13
@@ -95,7 +95,7 @@ object Form1: TForm1
       D4C8D0D4C8D0D4C8D0D4C8D0D400}
     OnClick = ReloadShadersCodeClick
   end
-  object SB_Light: TSpeedButton
+  object btnShowLights: TSpeedButton
     Left = 256
     Top = 32
     Width = 23
@@ -105,7 +105,7 @@ object Form1: TForm1
     Caption = 'L'
     OnClick = SB_RenderOpts
   end
-  object SB_Colli: TSpeedButton
+  object btnShowColli: TSpeedButton
     Left = 280
     Top = 32
     Width = 23
@@ -115,7 +115,7 @@ object Form1: TForm1
     Caption = 'C'
     OnClick = SB_RenderOpts
   end
-  object SB_Wire: TSpeedButton
+  object btnShowWireframe: TSpeedButton
     Left = 304
     Top = 32
     Width = 23
@@ -125,7 +125,7 @@ object Form1: TForm1
     Caption = 'W'
     OnClick = SB_RenderOpts
   end
-  object SB_UVmap: TSpeedButton
+  object btnShowUVMap: TSpeedButton
     Left = 336
     Top = 32
     Width = 23
@@ -136,7 +136,7 @@ object Form1: TForm1
     OnClick = SB_RenderOpts
   end
   object ImageM: TSpeedButton
-    Left = 816
+    Left = 808
     Top = 24
     Width = 23
     Height = 22
@@ -154,7 +154,7 @@ object Form1: TForm1
     OnMouseUp = Panel1MouseUp
   end
   object ImageR: TSpeedButton
-    Left = 840
+    Left = 832
     Top = 24
     Width = 23
     Height = 22
@@ -172,7 +172,7 @@ object Form1: TForm1
     OnMouseUp = Panel1MouseUp
   end
   object ImageZ: TSpeedButton
-    Left = 864
+    Left = 856
     Top = 24
     Width = 23
     Height = 22
@@ -192,14 +192,13 @@ object Form1: TForm1
   object RenderPanel: TPanel
     Left = 246
     Top = 56
-    Width = 644
+    Width = 649
     Height = 537
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'RenderPanel'
     Color = clBlack
     TabOrder = 0
-    OnClick = RenderFrame
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
@@ -209,7 +208,7 @@ object Form1: TForm1
     Top = 8
     Width = 242
     Height = 585
-    ActivePage = TabSheet5
+    ActivePage = tsBlinkers
     Anchors = [akLeft, akTop, akBottom]
     MultiLine = True
     Style = tsButtons
@@ -217,7 +216,7 @@ object Form1: TForm1
     TabOrder = 1
     TabWidth = 31
     OnChange = PageControl1Change
-    object TabSheet1: TTabSheet
+    object tsMaterials: TTabSheet
       Caption = 'MTL'
       object Label5: TLabel
         Left = 52
@@ -521,7 +520,6 @@ object Form1: TForm1
         Top = 298
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
         OnMouseUp = ShapeAMouseUp
       end
       object ShapeD: TShape
@@ -529,7 +527,6 @@ object Form1: TForm1
         Top = 298
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
         OnMouseUp = ShapeAMouseUp
       end
       object ShapeS1: TShape
@@ -537,7 +534,6 @@ object Form1: TForm1
         Top = 298
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
         OnMouseUp = ShapeAMouseUp
       end
       object ShapeS2: TShape
@@ -545,7 +541,6 @@ object Form1: TForm1
         Top = 298
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
         OnMouseUp = ShapeAMouseUp
       end
       object ShapeR: TShape
@@ -553,7 +548,6 @@ object Form1: TForm1
         Top = 298
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
         OnMouseUp = ShapeAMouseUp
       end
       object Label31: TLabel
@@ -617,7 +611,7 @@ object Form1: TForm1
           'Grey'
           'Silver')
       end
-      object ETextureName: TEdit
+      object edMaterialTextureFile: TEdit
         Left = 0
         Top = 384
         Width = 113
@@ -640,7 +634,7 @@ object Form1: TForm1
           'Repeat'
           'Mirror')
       end
-      object TTransparency: TTrackBar
+      object tbMaterialTransparency: TTrackBar
         Left = -4
         Top = 328
         Width = 119
@@ -708,7 +702,7 @@ object Form1: TForm1
         ItemHeight = 13
         TabOrder = 0
         OnClick = LBMaterialsClick
-        OnDrawItem = LBBlinkersDrawItem
+        OnDrawItem = lbBlinkersDrawItem
       end
       object MatName: TEdit
         Left = 134
@@ -728,7 +722,7 @@ object Form1: TForm1
         TabOrder = 6
         OnClick = MatTexBrowseClick
       end
-      object CBShowMat: TCheckBox
+      object cbShowMaterial: TCheckBox
         Left = 134
         Top = 40
         Width = 89
@@ -810,7 +804,7 @@ object Form1: TForm1
         TabOrder = 19
       end
     end
-    object TabSheet2: TTabSheet
+    object tsParts: TTabSheet
       Caption = 'Parts'
       ImageIndex = 1
       DesignSize = (
@@ -830,7 +824,7 @@ object Form1: TForm1
         Height = 13
         Caption = 'Label23'
       end
-      object TVParts: TTreeView
+      object tvParts: TTreeView
         Left = 0
         Top = 0
         Width = 129
@@ -842,9 +836,9 @@ object Form1: TForm1
         ReadOnly = True
         TabOrder = 0
         ToolTips = False
-        OnChange = TVPartsChange
-        OnDragDrop = TVPartsDragDrop
-        OnDragOver = TVPartsDragOver
+        OnChange = tvPartsChange
+        OnDragDrop = tvPartsDragDrop
+        OnDragOver = tvPartsDragOver
       end
       object RGDetailType: TRadioGroup
         Left = 134
@@ -886,7 +880,7 @@ object Form1: TForm1
         Top = 321
         Width = 234
         Height = 230
-        ActivePage = PivotSetup
+        ActivePage = Behaviour
         Anchors = [akLeft, akBottom]
         TabOrder = 4
         object PivotSetup: TTabSheet
@@ -900,13 +894,13 @@ object Form1: TForm1
             Enabled = False
             Visible = False
           end
-          object SpeedButton2: TSpeedButton
+          object btnPartPivotUse: TSpeedButton
             Left = 174
             Top = 6
             Width = 39
             Height = 23
             Caption = 'Use'
-            OnClick = SpeedButton2Click
+            OnClick = btnPartPivotUseClick
           end
           object Label33: TLabel
             Left = 2
@@ -1064,32 +1058,28 @@ object Form1: TForm1
             TabOrder = 9
             Value = 1
           end
-          object PSFLoad: TButton
+          object btnPSFLoad: TButton
             Left = 2
             Top = 174
             Width = 65
             Height = 25
             Caption = 'Load ...'
             TabOrder = 10
-            OnClick = PSFLoadClick
+            OnClick = btnPSFLoadClick
           end
-          object PSFSave: TButton
+          object btnPSFSave: TButton
             Left = 66
             Top = 174
             Width = 65
             Height = 25
             Caption = 'Save ...'
             TabOrder = 11
-            OnClick = PSFSaveClick
+            OnClick = btnPSFSaveClick
           end
         end
         object Behaviour: TTabSheet
           Caption = 'Behaviour'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object Label39: TLabel
             Left = 67
             Top = 150
@@ -1304,23 +1294,23 @@ object Form1: TForm1
             TabOrder = 9
             OnChange = PartTypeChange
           end
-          object PBFLoad: TButton
+          object btnPBFLoad: TButton
             Left = 2
             Top = 174
             Width = 65
             Height = 25
             Caption = 'Load ...'
             TabOrder = 10
-            OnClick = PBFLoadClick
+            OnClick = btnPBFLoadClick
           end
-          object PBFSave: TButton
+          object btnPBFSave: TButton
             Left = 66
             Top = 174
             Width = 65
             Height = 25
             Caption = 'Save ...'
             TabOrder = 11
-            OnClick = PBFSaveClick
+            OnClick = btnPBFSaveClick
           end
           object FlapParts: TTrackBar
             Left = 0
@@ -1357,7 +1347,7 @@ object Form1: TForm1
         OnClick = CBShowPartClick
       end
     end
-    object TabSheet3: TTabSheet
+    object tsBlinkers: TTabSheet
       Caption = 'Lights'
       ImageIndex = 2
       DesignSize = (
@@ -1479,7 +1469,7 @@ object Form1: TForm1
         Width = 97
         Height = 2
       end
-      object BlinkerCopy: TSpeedButton
+      object btnBlinkerCopy: TSpeedButton
         Left = 133
         Top = 356
         Width = 25
@@ -1527,7 +1517,7 @@ object Form1: TForm1
           D4C8D0D4C8D0D4C8D0D4}
         OnClick = BlinkCopyClick
       end
-      object BlinkerPaste: TSpeedButton
+      object btnBlinkerPaste: TSpeedButton
         Left = 157
         Top = 356
         Width = 25
@@ -1576,13 +1566,12 @@ object Form1: TForm1
           D4C8D0D4C8D0D4C8D0D4}
         OnClick = BlinkPasteClick
       end
-      object ShapeL: TShape
+      object shpBlinkerColor: TShape
         Left = 136
         Top = 386
         Width = 33
         Height = 29
-        OnDragDrop = ShapeADragDrop
-        OnMouseUp = ShapeAMouseUp
+        OnMouseUp = shpBlinkerColorMouseUp
       end
       object Label16: TLabel
         Left = 162
@@ -1603,7 +1592,7 @@ object Form1: TForm1
         Width = 97
         Height = 2
       end
-      object LBBlinkers: TListBox
+      object lbBlinkers: TListBox
         Left = 0
         Top = 0
         Width = 129
@@ -1618,10 +1607,10 @@ object Form1: TForm1
         ItemHeight = 13
         ParentFont = False
         TabOrder = 0
-        OnClick = LBBlinkersClick
-        OnDrawItem = LBBlinkersDrawItem
+        OnClick = lbBlinkersClick
+        OnDrawItem = lbBlinkersDrawItem
       end
-      object RGBlinkType: TRadioGroup
+      object rgBlinkerType: TRadioGroup
         Left = 0
         Top = 302
         Width = 129
@@ -1646,7 +1635,7 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = BlinkChange
       end
-      object FS1: TFloatSpinEdit
+      object fsBlinkerSizeMin: TFloatSpinEdit
         Left = 134
         Top = 420
         Width = 49
@@ -1656,7 +1645,7 @@ object Form1: TForm1
         TabOrder = 7
         OnChange = BlinkChange
       end
-      object FS2: TFloatSpinEdit
+      object fsBlinkerSizeMax: TFloatSpinEdit
         Left = 134
         Top = 444
         Width = 49
@@ -1666,7 +1655,7 @@ object Form1: TForm1
         TabOrder = 8
         OnChange = BlinkChange
       end
-      object FS3: TFloatSpinEdit
+      object fsBlinkerFreq: TFloatSpinEdit
         Left = 134
         Top = 468
         Width = 49
@@ -1676,7 +1665,7 @@ object Form1: TForm1
         TabOrder = 9
         OnChange = BlinkChange
       end
-      object S2: TSpinEdit
+      object seBlinkerParent: TSpinEdit
         Left = 134
         Top = 492
         Width = 39
@@ -1687,7 +1676,7 @@ object Form1: TForm1
         Value = 0
         OnChange = BlinkChange
       end
-      object FSX: TFloatSpinEdit
+      object fsBlinkerX: TFloatSpinEdit
         Left = 134
         Top = 155
         Width = 57
@@ -1697,7 +1686,7 @@ object Form1: TForm1
         TabOrder = 11
         OnChange = BlinkPositionChange
       end
-      object FSY: TFloatSpinEdit
+      object fsBlinkerY: TFloatSpinEdit
         Left = 134
         Top = 179
         Width = 57
@@ -1707,7 +1696,7 @@ object Form1: TForm1
         TabOrder = 12
         OnChange = BlinkPositionChange
       end
-      object FSZ: TFloatSpinEdit
+      object fsBlinkerZ: TFloatSpinEdit
         Left = 134
         Top = 203
         Width = 57
@@ -1717,15 +1706,15 @@ object Form1: TForm1
         TabOrder = 13
         OnChange = BlinkPositionChange
       end
-      object CBShowLight: TCheckBox
+      object cbTargetLight: TCheckBox
         Left = 134
         Top = 110
         Width = 91
         Height = 17
-        Caption = 'Aim light'
+        Caption = 'Target light'
         TabOrder = 4
       end
-      object FSH: TFloatSpinEdit
+      object fsBlinkerH: TFloatSpinEdit
         Left = 134
         Top = 256
         Width = 57
@@ -1735,7 +1724,7 @@ object Form1: TForm1
         TabOrder = 14
         OnChange = BlinkPositionChange
       end
-      object FSP: TFloatSpinEdit
+      object fsBlinkerP: TFloatSpinEdit
         Left = 134
         Top = 280
         Width = 57
@@ -1745,7 +1734,7 @@ object Form1: TForm1
         TabOrder = 15
         OnChange = BlinkPositionChange
       end
-      object FSB: TFloatSpinEdit
+      object fsBlinkerB: TFloatSpinEdit
         Left = 134
         Top = 304
         Width = 57
@@ -1755,7 +1744,7 @@ object Form1: TForm1
         TabOrder = 16
         OnChange = BlinkPositionChange
       end
-      object AddBlink: TButton
+      object btnBlinkerAdd: TButton
         Left = 134
         Top = 0
         Width = 25
@@ -1768,9 +1757,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 5
-        OnClick = BlinkAddClick
+        OnClick = btnBlinkerAddClick
       end
-      object LoadBlink: TButton
+      object btnBlinkersLoad: TButton
         Left = 0
         Top = 523
         Width = 65
@@ -1785,9 +1774,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 2
-        OnClick = LoadBlinkClick
+        OnClick = btnBlinkersLoadClick
       end
-      object SaveBlink: TButton
+      object btnBlinkersSave: TButton
         Left = 64
         Top = 523
         Width = 65
@@ -1802,9 +1791,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 3
-        OnClick = SaveBlinkClick
+        OnClick = btnBlinkersSaveClick
       end
-      object RemBlink: TButton
+      object btnBlinkerRem: TButton
         Left = 158
         Top = 0
         Width = 25
@@ -1817,9 +1806,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 6
-        OnClick = BlinkRemoveClick
+        OnClick = btnBlinkerRemClick
       end
-      object RGActBlink: TRadioGroup
+      object rgBlinkerPreview: TRadioGroup
         Left = 136
         Top = 28
         Width = 97
@@ -1835,10 +1824,10 @@ object Form1: TForm1
         TabOrder = 17
       end
     end
-    object TabSheet4: TTabSheet
+    object tsCOB: TTabSheet
       Caption = 'COB'
       ImageIndex = 4
-      object COBCopy: TSpeedButton
+      object btnCOBVerticeCopy: TSpeedButton
         Left = 182
         Top = 124
         Width = 25
@@ -1884,9 +1873,9 @@ object Form1: TForm1
           D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4
           C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0
           D4C8D0D4C8D0D4C8D0D4}
-        OnClick = COBCopyClick
+        OnClick = btnCOBVerticeCopyClick
       end
-      object COBPaste: TSpeedButton
+      object btnCOBVerticePaste: TSpeedButton
         Left = 206
         Top = 124
         Width = 25
@@ -1933,7 +1922,7 @@ object Form1: TForm1
           D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4
           C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0
           D4C8D0D4C8D0D4C8D0D4}
-        OnClick = COBPasteClick
+        OnClick = btnCOBVerticePasteClick
       end
       object Label57: TLabel
         Left = 196
@@ -2017,7 +2006,7 @@ object Form1: TForm1
         Height = 13
         Caption = 'Maximum'
       end
-      object CBShowIDs: TCheckBox
+      object cbCOBShowIds: TCheckBox
         Left = 134
         Top = -2
         Width = 97
@@ -2034,7 +2023,7 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = LBCOBPointsClick
       end
-      object COBX: TFloatSpinEdit
+      object seCOBX: TFloatSpinEdit
         Left = 134
         Top = 50
         Width = 57
@@ -2042,9 +2031,9 @@ object Form1: TForm1
         Accuracy = 3
         Increment = 0.001000000000000000
         TabOrder = 2
-        OnChange = COBXChange
+        OnChange = seCOBXChange
       end
-      object COBY: TFloatSpinEdit
+      object seCOBY: TFloatSpinEdit
         Left = 134
         Top = 74
         Width = 57
@@ -2052,9 +2041,9 @@ object Form1: TForm1
         Accuracy = 3
         Increment = 0.001000000000000000
         TabOrder = 3
-        OnChange = COBXChange
+        OnChange = seCOBXChange
       end
-      object COBZ: TFloatSpinEdit
+      object seCOBZ: TFloatSpinEdit
         Left = 134
         Top = 98
         Width = 57
@@ -2062,7 +2051,7 @@ object Form1: TForm1
         Accuracy = 3
         Increment = 0.001000000000000000
         TabOrder = 4
-        OnChange = COBXChange
+        OnChange = seCOBXChange
       end
       object COB_X: TFloatSpinEdit
         Left = 0
@@ -2163,7 +2152,7 @@ object Form1: TForm1
         ReadOnly = True
         TabOrder = 13
       end
-      object B_COBRecompute: TButton
+      object btnCOBRecompute: TButton
         Left = 0
         Top = 440
         Width = 177
@@ -2171,7 +2160,7 @@ object Form1: TForm1
         Caption = 'Recompute'
         Enabled = False
         TabOrder = 14
-        OnClick = B_COBRecomputeClick
+        OnClick = btnCOBRecomputeClick
       end
       object Panel4: TPanel
         Left = -2
@@ -2184,7 +2173,7 @@ object Form1: TForm1
         TabOrder = 15
       end
     end
-    object TabSheet7: TTabSheet
+    object tsCPO: TTabSheet
       Caption = 'CPO'
       ImageIndex = 6
       object Label53: TLabel
@@ -2208,7 +2197,7 @@ object Form1: TForm1
         Height = 13
         Caption = 'X-axis'
       end
-      object CPOCopy: TSpeedButton
+      object btnCPOCopy: TSpeedButton
         Left = 183
         Top = 16
         Width = 25
@@ -2256,7 +2245,7 @@ object Form1: TForm1
           C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0D4C8D0
           D4C8D0D4C8D0D4C8D0D4}
       end
-      object CPOPaste: TSpeedButton
+      object btnCPOPaste: TSpeedButton
         Left = 207
         Top = 16
         Width = 25
@@ -2410,16 +2399,16 @@ object Form1: TForm1
         Width = 97
         Height = 2
       end
-      object LBCPOShapes: TListBox
+      object lbCPOShapes: TListBox
         Left = 0
         Top = 16
         Width = 129
         Height = 334
         ItemHeight = 13
         TabOrder = 0
-        OnClick = LBCPOShapesClick
+        OnClick = lbCPOShapesClick
       end
-      object CPOX: TFloatSpinEdit
+      object seCPOX: TFloatSpinEdit
         Left = 134
         Top = 72
         Width = 57
@@ -2429,7 +2418,7 @@ object Form1: TForm1
         TabOrder = 1
         OnChange = CPOChange
       end
-      object CPOY: TFloatSpinEdit
+      object seCPOY: TFloatSpinEdit
         Left = 134
         Top = 96
         Width = 57
@@ -2439,7 +2428,7 @@ object Form1: TForm1
         TabOrder = 2
         OnChange = CPOChange
       end
-      object CPOZ: TFloatSpinEdit
+      object seCPOZ: TFloatSpinEdit
         Left = 134
         Top = 120
         Width = 57
@@ -2449,7 +2438,7 @@ object Form1: TForm1
         TabOrder = 3
         OnChange = CPOChange
       end
-      object CPOAdd: TButton
+      object btnCPOAdd: TButton
         Left = 134
         Top = 16
         Width = 25
@@ -2462,9 +2451,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 4
-        OnClick = CPOAddClick
+        OnClick = btnCPOAddClick
       end
-      object CPORem: TButton
+      object btnCPORem: TButton
         Left = 158
         Top = 16
         Width = 25
@@ -2477,9 +2466,9 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         TabOrder = 5
-        OnClick = CPORemClick
+        OnClick = btnCPORemClick
       end
-      object CPOSX: TFloatSpinEdit
+      object seCPOSX: TFloatSpinEdit
         Left = 134
         Top = 176
         Width = 57
@@ -2489,7 +2478,7 @@ object Form1: TForm1
         TabOrder = 6
         OnChange = CPOChange
       end
-      object CPOSY: TFloatSpinEdit
+      object seCPOSY: TFloatSpinEdit
         Left = 134
         Top = 200
         Width = 57
@@ -2499,7 +2488,7 @@ object Form1: TForm1
         TabOrder = 7
         OnChange = CPOChange
       end
-      object CPOSZ: TFloatSpinEdit
+      object seCPOSZ: TFloatSpinEdit
         Left = 134
         Top = 224
         Width = 57
@@ -2509,7 +2498,7 @@ object Form1: TForm1
         TabOrder = 8
         OnChange = CPOChange
       end
-      object CPORH: TFloatSpinEdit
+      object seCPORH: TFloatSpinEdit
         Left = 134
         Top = 280
         Width = 57
@@ -2519,7 +2508,7 @@ object Form1: TForm1
         TabOrder = 9
         OnChange = CPOChange
       end
-      object CPORP: TFloatSpinEdit
+      object seCPORP: TFloatSpinEdit
         Left = 134
         Top = 304
         Width = 57
@@ -2529,7 +2518,7 @@ object Form1: TForm1
         TabOrder = 10
         OnChange = CPOChange
       end
-      object CPORB: TFloatSpinEdit
+      object seCPORB: TFloatSpinEdit
         Left = 134
         Top = 328
         Width = 57
@@ -2539,76 +2528,69 @@ object Form1: TForm1
         TabOrder = 11
         OnChange = CPOChange
       end
-      object B_CPOImport: TButton
+      object btnCPOImport: TButton
         Left = 0
         Top = 360
         Width = 129
         Height = 25
         Caption = 'Import shape (*.lwo) ...'
         TabOrder = 12
-        OnClick = B_CPOImportClick
+        OnClick = btnCPOImportClick
       end
-      object B_CPOExport: TButton
+      object btnCPOExport: TButton
         Left = 0
         Top = 392
         Width = 129
         Height = 25
         Caption = 'Export shape (*.lwo) ...'
         TabOrder = 13
-        OnClick = B_CPOExportClick
+        OnClick = btnCPOExportClick
       end
     end
-    object TabSheet5: TTabSheet
+    object tsExtra: TTabSheet
       Caption = 'Extra'
       ImageIndex = 3
       DesignSize = (
         234
         551)
       object Label1: TLabel
-        Left = 52
-        Top = 183
+        Left = 56
+        Top = 187
         Width = 29
         Height = 13
         Caption = 'Points'
       end
-      object Label2: TLabel
-        Left = 52
-        Top = 205
-        Width = 46
-        Height = 13
-        Caption = 'UV points'
-      end
       object Label3: TLabel
-        Left = 52
-        Top = 227
+        Left = 56
+        Top = 211
         Width = 43
         Height = 13
         Caption = 'Polygons'
       end
       object Label4: TLabel
-        Left = 52
-        Top = 249
+        Left = 56
+        Top = 235
         Width = 24
         Height = 13
         Caption = 'Parts'
       end
       object Label41: TLabel
-        Left = 52
-        Top = 271
+        Left = 56
+        Top = 259
         Width = 42
         Height = 13
         Caption = 'Materials'
       end
       object Label71: TLabel
-        Left = 180
-        Top = 205
+        Left = 176
+        Top = 211
         Width = 28
         Height = 13
         Caption = 'Lights'
       end
       object Label72: TLabel
-        Left = 180
-        Top = 183
+        Left = 176
+        Top = 187
         Width = 36
         Height = 13
         Caption = 'Chunks'
@@ -2632,11 +2614,10 @@ object Form1: TForm1
         Top = 10
         Width = 57
         Height = 23
-        OnDragDrop = ShapeADragDrop
-        OnMouseUp = ShapeAMouseUp
+        OnMouseUp = ShapeBGMouseUp
       end
       object Label7: TLabel
-        Left = 68
+        Left = 76
         Top = 15
         Width = 84
         Height = 13
@@ -2661,11 +2642,10 @@ object Form1: TForm1
         Top = 30
         Width = 57
         Height = 23
-        OnDragDrop = ShapeADragDrop
-        OnMouseUp = ShapeAMouseUp
+        OnMouseUp = ShapeBGMouseUp
       end
       object Label15: TLabel
-        Left = 68
+        Left = 76
         Top = 35
         Width = 74
         Height = 13
@@ -2678,22 +2658,22 @@ object Form1: TForm1
         Height = 19
         BevelInner = bvRaised
         BevelOuter = bvLowered
-        Caption = 'Colors'
-        TabOrder = 10
+        Caption = 'Info'
+        TabOrder = 9
       end
       object Panel7: TPanel
         Left = -2
-        Top = 294
+        Top = 286
         Width = 238
         Height = 19
         BevelInner = bvRaised
         BevelOuter = bvLowered
         Caption = 'Log'
-        TabOrder = 11
+        TabOrder = 10
       end
-      object Edit3Dqty: TEdit
+      object edVerticeCount: TEdit
         Left = 0
-        Top = 180
+        Top = 184
         Width = 45
         Height = 21
         TabStop = False
@@ -2707,9 +2687,9 @@ object Form1: TForm1
         TabOrder = 0
         Text = '      -'
       end
-      object EditUVqty: TEdit
+      object edPolyCount: TEdit
         Left = 0
-        Top = 202
+        Top = 208
         Width = 45
         Height = 21
         TabStop = False
@@ -2717,9 +2697,9 @@ object Form1: TForm1
         TabOrder = 1
         Text = '      -'
       end
-      object EditPqty: TEdit
+      object edPartCount: TEdit
         Left = 0
-        Top = 224
+        Top = 232
         Width = 45
         Height = 21
         TabStop = False
@@ -2727,9 +2707,18 @@ object Form1: TForm1
         TabOrder = 2
         Text = '      -'
       end
-      object EditSqty: TEdit
+      object meLog: TMemo
         Left = 0
-        Top = 246
+        Top = 312
+        Width = 233
+        Height = 237
+        Anchors = [akLeft, akTop, akBottom]
+        ScrollBars = ssVertical
+        TabOrder = 4
+      end
+      object edMaterialCount: TEdit
+        Left = 0
+        Top = 256
         Width = 45
         Height = 21
         TabStop = False
@@ -2737,43 +2726,24 @@ object Form1: TForm1
         TabOrder = 3
         Text = '      -'
       end
-      object Memo1: TMemo
-        Left = 0
-        Top = 320
-        Width = 233
-        Height = 229
-        Anchors = [akLeft, akTop, akBottom]
-        ScrollBars = ssVertical
-        TabOrder = 5
-      end
-      object EditMqty: TEdit
-        Left = 0
-        Top = 268
+      object edChunkCount: TEdit
+        Left = 128
+        Top = 184
         Width = 45
         Height = 21
         TabStop = False
         ReadOnly = True
-        TabOrder = 4
+        TabOrder = 5
         Text = '      -'
       end
-      object EditCqty: TEdit
+      object edBlinkerCount: TEdit
         Left = 128
-        Top = 180
+        Top = 208
         Width = 45
         Height = 21
         TabStop = False
         ReadOnly = True
         TabOrder = 6
-        Text = '      -'
-      end
-      object EditBqty: TEdit
-        Left = 128
-        Top = 202
-        Width = 45
-        Height = 21
-        TabStop = False
-        ReadOnly = True
-        TabOrder = 7
         Text = '      -'
       end
       object FPSLimitEdit: TFloatSpinEdit
@@ -2784,7 +2754,7 @@ object Form1: TForm1
         Accuracy = 0
         Increment = 1.000000000000000000
         MaxValue = 1000.000000000000000000
-        TabOrder = 8
+        TabOrder = 7
         OnChange = FPSLimitEditChange
       end
       object ComboBox1: TComboBox
@@ -2793,7 +2763,7 @@ object Form1: TForm1
         Width = 97
         Height = 21
         ItemIndex = 4
-        TabOrder = 9
+        TabOrder = 8
         Text = 'Yellow'
         OnChange = ComboBox1Change
         Items.Strings = (
@@ -2813,14 +2783,14 @@ object Form1: TForm1
           'Grey'
           'Silver')
       end
-      object Button2: TButton
+      object btnRegisterMOX: TButton
         Left = 8
         Top = 112
         Width = 217
         Height = 25
         Caption = 'Register MTKit2 to open MOX files'
-        TabOrder = 12
-        OnClick = Button2Click
+        TabOrder = 11
+        OnClick = btnRegisterMOXClick
       end
       object cbAskOnClose: TCheckBox
         Left = 128
@@ -2828,10 +2798,10 @@ object Form1: TForm1
         Width = 81
         Height = 17
         Caption = 'Ask on close'
-        TabOrder = 13
+        TabOrder = 12
       end
     end
-    object TabSheet6: TTabSheet
+    object tsBrowse: TTabSheet
       Caption = 'Browse'
       ImageIndex = 5
       DesignSize = (
@@ -2885,9 +2855,9 @@ object Form1: TForm1
     TabOrder = 3
   end
   object ViewReset: TButton
-    Left = 828
+    Left = 808
     Top = 4
-    Width = 59
+    Width = 65
     Height = 17
     Anchors = [akTop, akRight]
     Caption = 'reset'
@@ -2921,7 +2891,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 603
-    Width = 884
+    Width = 889
     Height = 19
     Panels = <
       item
@@ -2946,7 +2916,7 @@ object Form1: TForm1
     Visible = False
     OnClick = Button1Click
   end
-  object Open1: TOpenDialog
+  object odOpen: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
     Title = 'Open file'
@@ -3086,12 +3056,19 @@ object Form1: TForm1
         OnClick = ResetMTLOrderClick
       end
     end
+    object Dev1: TMenuItem
+      Caption = 'Dev'
+      object ScanMOXheaders1: TMenuItem
+        Caption = 'Scan MOX headers'
+        OnClick = ScanMOXheaders1Click
+      end
+    end
     object About1: TMenuItem
       Caption = 'About ...'
       OnClick = About1Click
     end
   end
-  object Save1: TSaveDialog
+  object sdSave: TSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 310
     Top = 80

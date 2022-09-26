@@ -90,6 +90,8 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
+        <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -98,15 +100,23 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="MTkit2_Unit1.pas">
+        <DCCReference Include="src\MTkit2_Unit1.pas">
             <Form>Form1</Form>
         </DCCReference>
-        <DCCReference Include="MTkit2_Defaults.pas"/>
-        <DCCReference Include="MTkit2_IO.pas"/>
-        <DCCReference Include="MTkit2_Render.pas"/>
-        <DCCReference Include="MTkit2_RenderLegacy.pas"/>
+        <DCCReference Include="src\MTkit2_COB.pas"/>
+        <DCCReference Include="src\MTkit2_CPO.pas"/>
+        <DCCReference Include="src\MTkit2_Defaults.pas"/>
+        <DCCReference Include="src\MTkit2_IO.pas"/>
+        <DCCReference Include="src\MTkit2_MOX.pas"/>
+        <DCCReference Include="src\MTkit2_Tree.pas"/>
+        <DCCReference Include="src\MTkit2_Render.pas"/>
+        <DCCReference Include="src\MTkit2_RenderLegacy.pas"/>
+        <DCCReference Include="src\MTkit2_Textures.pas"/>
+        <DCCReference Include="src\MTkit2_Vertex.pas"/>
         <DCCReference Include="..\_Common_\KromUtils.pas"/>
-        <DCCReference Include="..\_Common_\ColorPicker.pas">
+        <DCCReference Include="..\_Common_\KM_Colors.pas"/>
+        <DCCReference Include="..\_Common_\KM_Vertexes.pas"/>
+        <DCCReference Include="..\_Common_\ColorPicker2.pas">
             <Form>Form2</Form>
         </DCCReference>
         <BuildConfiguration Include="Debug">
@@ -131,7 +141,7 @@
                 </Source>
                 <Language>
                     <Language Name="ProjectLang">$00000419</Language>
-                    <Language Name="RootDir">..\wr_toolkit.git\WR2 MTKit2\</Language>
+                    <Language Name="RootDir">C:\Users\Krom\Desktop\Delphi\wr_toolkit.git\WR2 MTKit2\</Language>
                 </Language>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>

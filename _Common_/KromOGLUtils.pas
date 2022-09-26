@@ -21,7 +21,7 @@ type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 
     procedure SetRenderDefaults;
     procedure CheckGLSLError(aHandle: GLhandleARB; aParam: GLenum; aText: string);
-    procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
+    procedure BuildFont(h_DC: HDC; FontSize: Integer; FontWeight: Word = FW_NORMAL);
     procedure glPrint(text: AnsiString);
     function ReadClick(X, Y: word): Vector3f;
     procedure glkScale(x:single);
@@ -232,43 +232,44 @@ begin
   glClearColor(0, 0, 0, 0); 	   //Background
   glClear (GL_COLOR_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
-  glPolygonMode(GL_FRONT,GL_FILL);
+  glPolygonMode(GL_FRONT, GL_FILL);
   glEnable(GL_NORMALIZE);
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
 end;
 
 
-procedure CheckGLSLError(aHandle: GLhandleARB; aParam: GLenum; aText:string);
+procedure CheckGLSLError(aHandle: GLhandleARB; aParam: GLenum; aText: string);
 var
   l, glsl_ok: GLint;
-  s: array [0..999] of AnsiChar;
-  i: integer;
-  w: String;
+  buf: array [0..999] of AnsiChar;
+  errText: string;
 begin
+  // glGetObjectParameter is an poorly undocumented extension
+  // Might be better to disuse it in the future
   glGetObjectParameterivARB(aHandle, aParam, @glsl_ok);
-  glGetInfoLogARB(aHandle, Length(s), l, PGLcharARB(@s[0]));
+  glGetInfoLogARB(aHandle, Length(buf), l, PGLcharARB(@buf[0]));
 
-  w := PAnsiChar(@s[0]);
+  errText := PAnsiChar(@buf[0]);
 
-  if w <> '' then
-    MessageBox(0, PWideChar(aText + sLineBreak + w), 'GLSL Log', MB_OK);
+  //todo: Think about it .. Atm all the errors just pop up annoyingly. Should be just one and rest in log
+  //if errText <> '' then
+  //  MessageBox(0, PWideChar(aText + sLineBreak + errText), 'GLSL Log', MB_OK);
 end;
 
 
-procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
-var Font: HFONT;
+procedure BuildFont(h_DC: HDC; FontSize: Integer; FontWeight: Word = FW_NORMAL);
+var
+  hf: HFONT;
 begin
-//New parameter FontSize=16
-  font:=CreateFont(-abs(FontSize),0,0,0,FontWeight,0,0,0,ANSI_CHARSET,
-  OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,
-  ANTIALIASED_QUALITY,FF_DONTCARE or DEFAULT_PITCH,
-  'Terminal');
-  SelectObject(h_dc,font);
-  wglUseFontBitmaps(h_dc,0,128,20000);
+  hf := CreateFont(-Abs(FontSize), 0, 0, 0, FontWeight, 0, 0, 0,
+    ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
+    FF_DONTCARE or DEFAULT_PITCH, 'Terminal');
+  SelectObject(h_DC, hf);
+  wglUseFontBitmaps(h_DC, 0, 128, 20000);
 end;
 
 
@@ -283,12 +284,13 @@ end;
 
 
 function ReadClick(X, Y: word): Vector3f;
-var viewport:TVector4i;
-    projection:TMatrix4d;
-    modelview:TMatrix4d;
-    vx,vy:integer;
-    vz:single; //required to match GL_FLOAT - single
-    wx,wy,wz:GLdouble;
+var
+  viewport:TVector4i;
+  projection:TMatrix4d;
+  modelview:TMatrix4d;
+  vx,vy:integer;
+  vz:single; //required to match GL_FLOAT - single
+  wx,wy,wz:GLdouble;
 begin
   glGetIntegerv(GL_VIEWPORT,@viewport);
   glGetDoublev(GL_PROJECTION_MATRIX,@projection);
@@ -299,12 +301,14 @@ begin
 
   glReadPixels(vx, vy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, @vz);
 
-  if vz=1 then begin
+  if vz=1 then
+  begin
     Result.x:=1000000; //Something out of working range
     Result.y:=0;
     Result.z:=0;
-  end else begin
-    //This function uses OpenGL parameters, not dglOpenGL
+  end else
+  begin
+    // This function uses OpenGL parameters, not dglOpenGL
     gluUnProject(vx, vy, vz, modelview, projection, viewport, @wx, @wy, @wz);
     Result.x:=wx;
     Result.y:=wy;
@@ -313,24 +317,26 @@ begin
 end;
 
 
-procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
+procedure kSetColorCode(TypeOfValue: KCode; IndexNum: Integer);
 begin
-glColor4ub(IndexNum mod 256,
-          (IndexNum mod 65536) div 256,    // 1,2,4(524288) 8,16,32,64,128 //0..31
-          (IndexNum mod 524288) div 65536+byte(TypeOfValue)*8,255);
+  glColor4ub(IndexNum mod 256,
+            (IndexNum mod 65536) div 256,    // 1,2,4(524288) 8,16,32,64,128 //0..31
+            (IndexNum mod 524288) div 65536+byte(TypeOfValue)*8,255);
 end;
 
 
-procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
+procedure kGetColorCode(RGBColor: Pointer; var TypeOfValue: KCode; var IndexNum: Integer);
 begin
-IndexNum:=pword(cardinal(RGBColor))^+((pbyte(cardinal(RGBColor)+2)^)mod 8)*65536;
-TypeOfValue:=KCode((pbyte(cardinal(RGBColor)+2)^)div 8);
+  IndexNum:=pword(cardinal(RGBColor))^+((pbyte(cardinal(RGBColor)+2)^)mod 8)*65536;
+  TypeOfValue:=KCode((pbyte(cardinal(RGBColor)+2)^)div 8);
 end;
+
 
 procedure glkScale(x:single);
 begin
   glScalef(x,x,x);
 end;
+
 
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 begin
@@ -340,6 +346,7 @@ begin
   glvertex2f(Dx,Dy);
 end;
 
+
 {Same as glkQuad, but requires on TopLeft and BottomRight coords}
 procedure glkRect(Ax,Ay,Bx,By:single);
 begin
@@ -348,6 +355,7 @@ begin
   glvertex2f(Bx,By);
   glvertex2f(Ax,By);
 end;
+
 
 {Lines are drawn between pixels, thus when AA turned on they get blurred.
 We can negate this by using 0.5 offset

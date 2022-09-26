@@ -21,9 +21,9 @@ type
 
 function ElapsedTime(i1: pcardinal): string;
 function ExtractOpenedFileName(in_s: string):string;
-function GetFileExt (const FileName: string): string;
-function AssureFileExt(FileName,Ext:string): string;
-function TruncateExt(FileName:string): string; deprecated;
+function GetFileExt (const FileName: string): string; deprecated;
+function AssureFileExt(FileName, Ext: string): string; deprecated;
+function TruncateExt(FileName: string): string; deprecated;
 function GetFileSize(const FileName: string): LongInt;
 function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
 
@@ -82,6 +82,7 @@ function Pow(const Base, Exponent: integer): integer;
   function Perpendecular2D(v1,v2,v3:Vector3f; Len:single):vector3f;
   procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle); overload;
   procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f); overload;
+  procedure Normal2Poly(v1,v2,v3:PVector3f; n:PVector3f); overload;
   procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single); overload;
 
 procedure decs(var AText: AnsiString; const Len:integer=1); overload;
@@ -90,6 +91,9 @@ function  decs(AText: AnsiString; Len,RunAsFunction:integer): AnsiString; overlo
 function GetNumberFromString(AText:string; Position:integer):single;
 function RemoveQuotes(Input:string):string;
 function GetCharFromVirtualKey(Key:word):string;
+
+function Lerp(A,B: Single; aMixValue: Single): Single;
+
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:byte); overload;
 procedure SwapInt(var A,B:word); overload;
@@ -119,7 +123,7 @@ function BrowseURL(const URL: string) : boolean;
 procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 
-procedure RegisterFileType(ExtName:string; AppName:string);
+procedure RegisterFileType(const aExtName, aAppPath: string);
 function GetExeBuildTime: TDateTime;
 
 const
@@ -770,9 +774,16 @@ end;
 
 procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f);
 begin  //aka Cross product of 2 vectors
-n^.x:= ((v1.Y-v2.Y)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.Y-v3.Y))/256;
-n^.y:=-((v1.X-v2.X)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.X-v3.X))/256;
-n^.z:= ((v1.X-v2.X)*(v1.Y-v3.Y)-(v1.Y-v2.Y)*(v1.X-v3.X))/256;
+  n^.x:= ((v1.Y-v2.Y)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.Y-v3.Y))/256;
+  n^.y:=-((v1.X-v2.X)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.X-v3.X))/256;
+  n^.z:= ((v1.X-v2.X)*(v1.Y-v3.Y)-(v1.Y-v2.Y)*(v1.X-v3.X))/256;
+end;
+
+procedure Normal2Poly(v1,v2,v3:PVector3f; n:PVector3f);
+begin  //aka Cross product of 2 vectors
+  n^.x:= ((v1.Y-v2.Y)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.Y-v3.Y))/256;
+  n^.y:=-((v1.X-v2.X)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.X-v3.X))/256;
+  n^.z:= ((v1.X-v2.X)*(v1.Y-v3.Y)-(v1.Y-v2.Y)*(v1.X-v3.X))/256;
 end;
 
 procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single);
@@ -874,6 +885,11 @@ begin
     2:    ;
     else  Result := '';
   end;
+end;
+
+function Lerp(A, B: Single; aMixValue: Single): Single;
+begin
+  Result := A + (B - A) * aMixValue;
 end;
 
 
@@ -1207,27 +1223,35 @@ begin
 end;
 
 
-procedure RegisterFileType(ExtName:string; AppName:string);
+procedure RegisterFileType(const aExtName, aAppPath: string);
 var
   reg: TRegistry;
+  entryName: string;
 begin
+  Assert(Pos('.', aExtName) = 1, 'Extension must start with a dot .');
+
+  entryName := Copy(aExtName, 2, Length(aExtName)) + '_file';
+
   reg := TRegistry.Create;
   try
-    reg.RootKey := HKEY_CLASSES_ROOT;
-    reg.OpenKey('.'+ExtName, true);
-    reg.WriteString('', ExtName+'file');
+    reg.RootKey := HKEY_CURRENT_USER;
+    reg.OpenKey('\Software\Classes\' + aExtName, True);
+    reg.WriteString('', entryName);
     reg.CloseKey;
-    reg.CreateKey(ExtName+'file');
-    reg.OpenKey(ExtName+'file\DefaultIcon', true);
-    reg.WriteString('', '"'+AppName+'"'+',0');
+
+    reg.OpenKey('\Software\Classes\' + entryName + '\DefaultIcon', True);
+    reg.WriteString('', '"' + aAppPath + '"' + ',0'); // Use 0th icon
     reg.CloseKey;
-    reg.OpenKey(ExtName+'file\shell\open\command', true);
-    reg.WriteString('', '"'+AppName+'"'+' "%1"');
+
+    reg.OpenKey('\Software\Classes\' + entryName + '\shell\open\command', True);
+    reg.WriteString('', '"' + aAppPath + '"' + ' "%1"'); // "C:\path_to_exe\app.exe" "%1"
     reg.CloseKey;
   finally
     reg.Free;
   end;
-  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil) ;
+
+  // Tells Explorer to 'reload' itself to reflect the changes made to the file association
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
 
 

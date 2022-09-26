@@ -1,8 +1,8 @@
 unit MTkit2_Render;
 interface
 uses
-  OpenGL, dglOpenGL, kromOGLUtils, kromUtils, sysutils, Math, Windows,
-  TGATexture, PTXTexture;
+  OpenGL, dglOpenGL, KromOGLUtils, KromUtils, SysUtils, Math, Windows,
+  TGATexture, PTXTexture, MTkit2_COB;
 
 type
   TBlinkerPreviewMode = (bmNone, bmHeadBreaks, bmBlinkers, bmReverse, bmNitro);
@@ -11,9 +11,8 @@ type
   function LoadFresnelShader: Boolean;
   function RenderShaders: Boolean;
   procedure RenderLights(aSelected: Integer; aMode: TBlinkerPreviewMode; aShowDummy, aVectors: Boolean);
-  procedure RenderCOB(ID: Integer);
+  procedure RenderCOB(aCOB: TModelCOB; aVerticeId: Integer; aShowIds: Boolean);
   procedure RenderCPO(ID: Integer);
-  procedure RenderTREE;
   procedure RenderGrid;
   procedure RenderUVGrid(ShowGrid: Boolean);
   procedure CompileCommonObjects;
@@ -24,7 +23,7 @@ const
 
 implementation
 uses
-  MTkit2_Unit1, MTkit2_Defaults;
+  MTkit2_Unit1, MTkit2_Defaults, MTkit2_CPO, MTkit2_MOX, MTkit2_Tree;
 
 var
   po, fs: array [0..MAX_MAT_CLASS, 0..MAX_MAT_CLASS] of Integer;
@@ -74,78 +73,82 @@ var
   s: AnsiString;
 begin
   Result := false;
+  try
+    s := PAnsiChar(glGetString(GL_VERSION));
 
-  s := PAnsiChar(glGetString(GL_VERSION));
+    if s < '2.0' then begin //return format is "Major.Minor.Minor - Misc", we check first two  numbers as version
+      if not fileexists('krom.dev') then
+        MessageBox(Form1.Handle,
+          PChar('You need at least OpenGL 2.0 to run MTKit2'+eol+
+          'Your OpenGL version is '+glGetString(GL_VERSION)+' by '+glGetString(GL_RENDERER)+eol+
+          eol+
+          'MTKit2 will now run in compatibility mode'), 'OpenGL', MB_OK);
+      exit;
+    end;
 
-  if s < '2.0' then begin //return format is "Major.Minor.Minor - Misc", we check first two  numbers as version
-    if not fileexists('krom.dev') then
-      MessageBox(Form1.Handle,
-        PChar('You need at least OpenGL 2.0 to run MTKit2'+eol+
-        'Your OpenGL version is '+glGetString(GL_VERSION)+' by '+glGetString(GL_RENDERER)+eol+
-        eol+
-        'MTKit2 will now run in compatibility mode'), 'OpenGL', MB_OK);
-    exit;
-  end;
+    Assert(Assigned(glCreateShaderObjectARB));
 
-  Assert(Assigned(glCreateShaderObjectARB));
+    for i:=0 to MAX_MAT_CLASS do for k:=0 to MAX_MAT_CLASS do
+    begin
+      po[i,k]:=glCreateProgramObjectARB;
+      fs[i,k]:=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+    end;
 
-  for i:=0 to MAX_MAT_CLASS do for k:=0 to MAX_MAT_CLASS do
-  begin
-    po[i,k]:=glCreateProgramObjectARB;
-    fs[i,k]:=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-  end;
+    vs:=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB); //one for all
 
-  vs:=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB); //one for all
+    if not fileexists(ExeDir+'MTKit2 Data\Common.vert')
+    or not fileexists(ExeDir+'MTKit2 Data\Common.frag') then
+    begin
+      MessageBox(Form1.Handle, 'Unable to locate "MTKit2 Data\Common.vert" or "MTKit2 Data\Common.frag"', 'Error', MB_OK or MB_ICONERROR);
+      exit;
+    end;
 
-  if not fileexists(ExeDir+'MTKit2 Data\Common.vert')
-  or not fileexists(ExeDir+'MTKit2 Data\Common.frag') then
-  begin
-    MessageBox(Form1.Handle, 'Unable to locate "MTKit2 Data\Common.vert" or "MTKit2 Data\Common.frag"', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-
-  assignfile(ff,ExeDir+'MTKit2 Data\Common.vert');
-  reset(ff,1);
-  blockread(ff,c,10000,NumRead);
-  closefile(ff);
-  c[NumRead+1]:=#0;
-  src := PAnsiChar(@c[1]);
-  glShaderSourceARB(vs, 1, @src, @NumRead);
-
-  for i:=0 to MAX_MAT_CLASS do for k:=0 to MAX_MAT_CLASS do
-  begin
-    fname:=int2fix(i,2)+' '+int2fix(k,2);
-    if fileexists(ExeDir+'MTKit2 Data\'+fname+'.frag') then
-      fname:='MTKit2 Data\'+fname+'.frag'
-    else
-      fname:='MTKit2 Data\Common.frag';
-
-    assignfile(ff,ExeDir+fname);
+    assignfile(ff,ExeDir+'MTKit2 Data\Common.vert');
     reset(ff,1);
     blockread(ff,c,10000,NumRead);
     closefile(ff);
     c[NumRead+1]:=#0;
     src := PAnsiChar(@c[1]);
-    glShaderSourceARB(fs[i,k], 1, @src, @NumRead);
+    glShaderSourceARB(vs, 1, @src, @NumRead);
+
+    for i:=0 to MAX_MAT_CLASS do for k:=0 to MAX_MAT_CLASS do
+    begin
+      fname:=int2fix(i,2)+' '+int2fix(k,2);
+      if fileexists(ExeDir+'MTKit2 Data\'+fname+'.frag') then
+        fname:='MTKit2 Data\'+fname+'.frag'
+      else
+        fname:='MTKit2 Data\Common.frag';
+
+      assignfile(ff,ExeDir+fname);
+      reset(ff,1);
+      blockread(ff,c,10000,NumRead);
+      closefile(ff);
+      c[NumRead+1]:=#0;
+      src := PAnsiChar(@c[1]);
+      glShaderSourceARB(fs[i,k], 1, @src, @NumRead);
+    end;
+
+    glCompileShaderARB(vs);
+    CheckGLSLError(vs, GL_OBJECT_COMPILE_STATUS_ARB, 'Compile VS');
+
+    for i:=0 to MAX_MAT_CLASS do
+    for k:=0 to MAX_MAT_CLASS do
+    begin
+      glCompileShaderARB(fs[i,k]);
+      CheckGLSLError(fs[i,k], GL_OBJECT_COMPILE_STATUS_ARB, Format('FS compile %2d %2d', [I,K]));
+
+      glAttachObjectARB(po[i,k],vs);
+      glAttachObjectARB(po[i,k],fs[i,k]);
+      glLinkProgramARB(po[i,k]);
+      CheckGLSLError(po[i,k],GL_OBJECT_LINK_STATUS_ARB, Format('PO link %2d %2d', [I,K]));
+      glValidateProgramARB(po[i,k]);
+      CheckGLSLError(po[i,k],GL_OBJECT_VALIDATE_STATUS_ARB, Format('PO validate %2d %2d', [I,K]));
+    end;
+
+    Result := true;
+  except
+    //
   end;
-
-  glCompileShaderARB(vs);
-  CheckGLSLError(vs, GL_OBJECT_COMPILE_STATUS_ARB, 'Compile VS');
-
-  for i:=0 to MAX_MAT_CLASS do for k:=0 to MAX_MAT_CLASS do
-  begin
-    glCompileShaderARB(fs[i,k]);
-    CheckGLSLError(fs[i,k], GL_OBJECT_COMPILE_STATUS_ARB, Format('FS compile %2d %2d', [I,K]));
-
-    glAttachObjectARB(po[i,k],vs);
-    glAttachObjectARB(po[i,k],fs[i,k]);
-    glLinkProgramARB(po[i,k]);
-    CheckGLSLError(po[i,k],GL_OBJECT_LINK_STATUS_ARB, Format('PO link %2d %2d', [I,K]));
-    glValidateProgramARB(po[i,k]);
-    CheckGLSLError(po[i,k],GL_OBJECT_VALIDATE_STATUS_ARB, Format('PO validate %2d %2d', [I,K]));
-  end;
-
-  Result := true;
 end;
 
 function RenderShaders: Boolean;
@@ -153,28 +156,28 @@ var
   Mat_Ambi, Mat_Diff, Mat_Spec, Mat_Spec2, Mat_Refl, Mat_Dirt, Mat_ReflF: Integer;
   S_Tex1, S_Tex2, S_Tex3, S_Tex4: Integer;
   mc2,mc3,mc4: Byte;
-  i,k,h:Integer;
+  i,k,h: Integer;
 begin
-  for i:=1 to MOX.Qty.Parts do
+  for i:=1 to MOX.Header.PartCount do
   begin
     glPushMatrix;
     glMultMatrixf(@MOX.Parts[i].Matrix);
 
     // Flap everything correctly
-    if RenderOpts.ShowDamage or (I = SelectedTreeNode) then
+    if RenderOptions.ShowDamage or (I = SelectedTreeNode) then
     begin
-      glRotatef(Mix(MOX.Parts[i].x1,MOX.Parts[i].x2,RenderOpts.PartsFlapPos)/pi*180,1,0,0);
-      glRotatef(Mix(MOX.Parts[i].y1,MOX.Parts[i].y2,RenderOpts.PartsFlapPos)/pi*180,0,1,0);
-      glRotatef(Mix(MOX.Parts[i].z1,MOX.Parts[i].z2,RenderOpts.PartsFlapPos)/pi*180,0,0,-1);
+      glRotatef(Mix(MOX.Parts[i].x1, MOX.Parts[i].x2, RenderOptions.PartsFlapPos)/Pi*180,1,0,0);
+      glRotatef(Mix(MOX.Parts[i].y1, MOX.Parts[i].y2, RenderOptions.PartsFlapPos)/Pi*180,0,1,0);
+      glRotatef(Mix(MOX.Parts[i].z1, MOX.Parts[i].z2, RenderOptions.PartsFlapPos)/Pi*180,0,0,-1);
     end;
 
     for k:=MOX.Parts[i].FirstMat+1 to MOX.Parts[i].FirstMat+MOX.Parts[i].NumMat do
     begin
       //if (RenderOpts.ShowMaterial<>0)and(MatID<>MOX.Sid[k,1]+1) then exit;
 
-      mc2 := Material[MOX.Sid[k,1]+1].MatClass[2];
-      mc3 := Material[MOX.Sid[k,1]+1].MatClass[3];
-      mc4 := Material[MOX.Sid[k,1]+1].MatClass[4];
+      mc2 := Material[MOX.Chunks[k].SidA+1].MatClass[2];
+      mc3 := Material[MOX.Chunks[k].SidA+1].MatClass[3];
+      mc4 := Material[MOX.Chunks[k].SidA+1].MatClass[4];
 
       glUseProgramObjectARB(po[mc2,mc3]);
       S_Tex1 := glGetUniformLocationARB(po[mc2,mc3], 'Tex1');
@@ -189,7 +192,7 @@ begin
       Mat_Dirt := glGetUniformLocationARB(po[mc2,mc3], 'Mat_DirtAm');
       Mat_ReflF:= glGetUniformLocationARB(po[mc2,mc3], 'Mat_ReflFres');
 
-      glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, MoxTex[MOX.Sid[k,1]+1]);
+      glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, MoxTex[MOX.Chunks[k].SidA+1]);
 
       if (Form1.CBVinyl.ItemIndex>0) and (mc4 and 1 = 1) then
         glBindTexture(GL_TEXTURE_2D, VinylsTex);
@@ -202,7 +205,7 @@ begin
       glUniform1iARB(S_Tex3, 2);
       glUniform1iARB(S_Tex4, 3);
 
-      with Material[MOX.Sid[k,1]+1].Color[ColID] do
+      with Material[MOX.Chunks[k].SidA+1].Color[ColID] do
       begin
         glUniform3fARB(Mat_Diff ,Dif.R/255,Dif.G/255,Dif.B/255);
         glUniform3fARB(Mat_Ambi ,Amb.R/255,Amb.G/255,Amb.B/255);
@@ -239,63 +242,66 @@ begin
 end;
 
 
-procedure RenderCOB(ID: Integer);
+procedure RenderCOB(aCOB: TModelCOB; aVerticeId: Integer; aShowIds: Boolean);
 var
-  i,h:Integer;
+  i,h: Integer;
 begin
-  if COB.Head.PointQty=0 then exit;
+  if aCOB.Head.PointQty = 0 then Exit;
+
   glBindTexture(GL_TEXTURE_2D, 0); //UV map texture
 
   glPushMatrix;
-    glTranslate(COB.Head.X,COB.Head.Y,COB.Head.Z);
-    glCallList(Pivot); //Pivot
+    glTranslate(aCOB.Head.X, aCOB.Head.Y, aCOB.Head.Z);
+    glCallList(Pivot);
   glPopMatrix;
 
-  glColor4f(0.7,0.6,0.5,0.6);
+  glColor4f(0.7, 0.6, 0.5, 0.6);
 
   glBegin(GL_TRIANGLES);
-    for i:=1 to COB.Head.PolyQty do
-      for h:=3 downto 1 do begin
-        glNormal3fv(@COB.NormalsP[i].X);
-        glvertex3fv(@COB.Vertices[COB.Faces[i,h]+1].X);
+    for i:= 0 to aCOB.Head.PolyQty - 1 do
+      for h:=3 downto 1 do
+      begin
+        glNormal3fv(@aCOB.Normals[i].X);
+        glvertex3fv(@aCOB.Vertices[aCOB.Faces[i,h]].X);
       end;
   glEnd;
 
   glDepthFunc(GL_ALWAYS);
-  glColor4f(1,0.9,0.6,1);
-  glPolygonMode(GL_FRONT,GL_LINE);
+  glColor4f(1, 0.9, 0.6, 1);
+  glPolygonMode(GL_FRONT, GL_LINE);
 
   glBegin(GL_TRIANGLES);
-    for i:=1 to COB.Head.PolyQty do
-    for h:=3 downto 1 do begin
-      glNormal3fv(@COB.NormalsP[i].X);
-      glvertex3fv(@COB.Vertices[COB.Faces[i,h]+1].X);
+    for i:=0 to aCOB.Head.PolyQty - 1 do
+    for h:=3 downto 1 do
+    begin
+      glNormal3fv(@aCOB.Normals[i].X);
+      glVertex3fv(@aCOB.Vertices[aCOB.Faces[i,h]].X);
     end;
   glEnd;
 
-  glPolygonMode(GL_FRONT,GL_FILL);
+  glPolygonMode(GL_FRONT, GL_FILL);
   glDepthFunc(GL_LEQUAL);
   glDisable(GL_LIGHTING);
 
-  if Form1.CBShowIDs.Checked then
-  for i:=1 to COB.Head.PointQty do
+  if aShowIds then
+  for i:=0 to aCOB.Head.PointQty - 1 do
   begin
-    glColor4f(0.75,0.75,0.75,1);
-    glRasterPos3f(COB.Vertices[i].X,COB.Vertices[i].Y,COB.Vertices[i].Z);
-    glPrint(inttostr(i));
+    glColor4f(0.75, 0.75, 0.75, 1);
+    glRasterPos3fv(@aCOB.Vertices[i].X);
+    glPrint(IntToStr(i + 1));
   end;
 
-  if ID > 0 then
+  if aVerticeId >= 0 then
   begin
-    glColor4f(1,1,1,1);
+    glColor4f(1, 1, 1, 1);
     glDepthFunc(GL_ALWAYS);
 
     glBegin(GL_POINTS);
-      glvertex3fv(@COB.Vertices[ID].X);
+      glVertex3fv(@aCOB.Vertices[aVerticeId].X);
     glEnd;
 
-    glRasterPos3f(COB.Vertices[ID].X,COB.Vertices[ID].Y,COB.Vertices[ID].Z);
-    glPrint(inttostr(ID));
+    glRasterPos3fv(@aCOB.Vertices[aVerticeId].X);
+    glPrint(IntToStr(aVerticeId + 1));
     glDepthFunc(GL_LEQUAL);
   end;
 end;
@@ -369,55 +375,6 @@ begin
 end;
 
 
-procedure RenderTREE;
-var
-  i,h:Integer;
-begin
-if Tree.NumVertex=0 then exit;
-
-glPushMatrix;
-  glTranslate(0,-TreeHeight/3,0);
-  glBindTexture(GL_TEXTURE_2D, TreeTex[1]); //UV map texture
-  glCallList(Pivot); //Pivot
-  glColor4f(0.75,0.75,0.75,1);
-  glCallList(TreeCall);
-
-  glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER,0.5);
-  glBindTexture(GL_TEXTURE_2D, TreeTex[2]); //UV map texture
-  glColor4f(0.75,0.75,0.75,1);
-  for i:=1 to Tree.NumLeaves do
-  begin
-    glPushMatrix;
-      glTranslate(TreeLeaves[i].X,TreeLeaves[i].Y,TreeLeaves[i].Z);
-      glRotatef(xRot, 0, -1, 0); //face camera
-      glRotatef(yRot, -1, 0, 0);
-      glbegin (gl_triangles);
-      for h:=1 to 3 do begin
-        glTexCoord2f(TreeVertex[TreePoly[i,h]+1].U , -TreeVertex[TreePoly[i,h]+1].V);
-        glNormal3fv(@TreeVertex[TreePoly[i,h]+1].nX);
-        glvertex3fv(@TreeVertex[TreePoly[i,h]+1].X);
-      end;
-      glEnd;
-    glPopMatrix;
-  end;
-  glDisable(GL_ALPHA_TEST);
-
-  if RenderOpts.Wire then
-  begin
-    glBindTexture(GL_TEXTURE_2D,0); //UV map texture
-    glDepthFunc(GL_ALWAYS);
-    glColor4f(0.6,0.9,0.6,0.1);
-    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-    glCallList(TreeCall);
-    glPolygonMode(GL_FRONT,GL_FILL);
-    glDepthFunc(GL_LEQUAL);
-  end;
-
-  glPopMatrix;
-end;
-
-
 procedure RenderLights(aSelected: Integer; aMode: TBlinkerPreviewMode; aShowDummy, aVectors: Boolean);
 var
   I: Integer;
@@ -433,7 +390,7 @@ begin
   Angles2Vector(-xRot, yRot, 0, cam[1], cam[2], cam[3]);
   Normalize(cam[1],cam[2],cam[3]);
 
-  for I := 1 to MOX.Qty.Blink do
+  for I := 1 to MOX.Header.BlinkerCount do
   begin
     if aVectors then
     begin
